@@ -13,6 +13,8 @@ on:
                 value: ${{ jobs.compute.outputs.php }}
             exclude:
                 value: ${{ jobs.compute.outputs.exclude }}
+            major_exclude:
+                value: ${{ jobs.compute.outputs.major_exclude }}
 
 env:
     OS: '[ "ubuntu-latest" ]'
@@ -33,6 +35,7 @@ jobs:
             major: ${{ steps.major-version.outputs.major  }}
             php: ${{ env.PHP }}
             exclude: ${{ env.EXCLUDE }}
+            major_exclude: ${{ env.MAJOR_EXCLUDE }}
 
         steps:
             -   name: Compute major versions
@@ -42,14 +45,16 @@ jobs:
                     echo $COVERAGE
                     echo -e "\n\nSplit by comma\n"
                     echo $COVERAGE | tr "," "\n"
-                    echo -e "\n\nParse numbers\n"
-                    echo $COVERAGE | tr "," "\n" | tr -cd "\n0-9"
-                    echo -e "\n\nCut last 2 characters\n"
-                    echo $COVERAGE | tr "," "\n" | tr -cd "\n0-9" | sed "s/.\{2\}$//"
+                    echo -e "\n\nStrip brackets, quotes and spaces\n"
+                    echo $COVERAGE | tr "," "\n" | tr -d ' "[]'
+                    echo -e "\n\nStrip range operator\n"
+                    echo $COVERAGE | tr "," "\n" | tr -d ' "[]' | sed "s/^[~^]//"
+                    echo -e "\n\nCut at first dot\n"
+                    echo $COVERAGE | tr "," "\n" | tr -d ' "[]' | sed "s/^[~^]//" | cut -d. -f1
                     echo -e "\n\nSort by version\n"
-                    echo $COVERAGE | tr "," "\n" | tr -cd "\n0-9" | sed "s/.\{2\}$//" | sort -V
+                    echo $COVERAGE | tr "," "\n" | tr -d ' "[]' | sed "s/^[~^]//" | cut -d. -f1 | sort -V
                     echo -e "\n\nUnique values only\n"
-                    echo $COVERAGE | tr "," "\n" | tr -cd "\n0-9" | sed "s/.\{2\}$//" | sort -V | uniq
+                    echo $COVERAGE | tr "," "\n" | tr -d ' "[]' | sed "s/^[~^]//" | cut -d. -f1 | sort -V | uniq
                     echo -e "\n\nCovert to JSON\n"
-                    echo $COVERAGE | tr "," "\n" | tr -cd "\n0-9" | sed "s/.\{2\}$//" | sort -V | uniq | jq --compact-output --raw-input --slurp 'split("\n") | map(select(. != ""))'
-                    echo "major=$(echo $COVERAGE | tr "," "\n" | tr -cd "\n0-9" | sed "s/.\{2\}$//" | sort -V | uniq | jq --compact-output --raw-input --slurp 'split("\n") | map(select(. != ""))')" >> $GITHUB_OUTPUT
+                    echo $COVERAGE | tr "," "\n" | tr -d ' "[]' | sed "s/^[~^]//" | cut -d. -f1 | sort -V | uniq | jq --compact-output --raw-input --slurp 'split("\n") | map(select(. != ""))'
+                    echo "major=$(echo $COVERAGE | tr "," "\n" | tr -d ' "[]' | sed "s/^[~^]//" | cut -d. -f1 | sort -V | uniq | jq --compact-output --raw-input --slurp 'split("\n") | map(select(. != ""))')" >> $GITHUB_OUTPUT

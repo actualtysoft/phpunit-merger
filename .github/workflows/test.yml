@@ -35,7 +35,7 @@ jobs:
                     COVERAGE: ${{ matrix.coverage }}
                 run: |
                     echo "version=$(echo $COVERAGE | tr -d -c 0-9)" >> $GITHUB_OUTPUT
-                    echo "major=$(echo $COVERAGE | tr -d -c 0-9 | sed 's/.\{2\}$//')" >> $GITHUB_OUTPUT
+                    echo "major=$(echo $COVERAGE | sed 's/^[~^]//' | cut -d. -f1)" >> $GITHUB_OUTPUT
 
             -   uses: actions/cache/restore@v4
                 id: restore-composer-cache
@@ -97,7 +97,7 @@ jobs:
                 os: ${{ fromJson(needs.compute.outputs.os)  }}
                 coverage: ${{ fromJson(needs.compute.outputs.major)  }}
                 php: ${{ fromJson(needs.compute.outputs.php)  }}
-                exclude: ${{ fromJson(needs.compute.outputs.exclude)  }}
+                exclude: ${{ fromJson(needs.compute.outputs.major_exclude)  }}
 
         runs-on: ${{ matrix.os }}
 
