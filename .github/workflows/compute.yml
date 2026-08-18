@@ -16,9 +16,10 @@ on:
 
 env:
     OS: '[ "ubuntu-latest" ]'
-    COVERAGE: '[ "~11.5.27", "~12.2.7"  ]'
-    PHP: '[ "8.3", "8.4" ]'
-    EXCLUDE: '[ { "coverage": "~11.5.27", "php": "8.3" }, { "coverage": "~11.5.27", "php": "8.4" }, { "coverage": "~12.2.7", "php": "8.3" }, { "coverage": "~12.2.7", "php": "8.4" } ]'
+    COVERAGE: '[ "~11.0.12", "~12.5.7", "~13.0.2" ]'
+    PHP: '[ "8.3", "8.4", "8.5" ]'
+    EXCLUDE: '[ { "coverage": "~11.0.12", "php": "8.5" }, { "coverage": "~13.0.2", "php": "8.3" } ]'
+    MAJOR_EXCLUDE: '[ { "coverage": "11", "php": "8.5" }, { "coverage": "13", "php": "8.3" } ]'
 
 jobs:
     compute:
