@@ -3,3 +3,4 @@
 /.Log
 composer.lock
 .phpunit.result.cache
+CLAUDE.md
