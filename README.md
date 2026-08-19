@@ -10,10 +10,23 @@ reports to e.g. SonarQube Scanner for further processing.
 
 ## Installation
 
-Use [Composer](https://getcomposer.org/) to install the testing framework.
+This package is not published on Packagist. Add the repository to your `composer.json` first:
+
+```json
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/actualtysoft/phpunit-merger"
+        }
+    ]
+}
+```
+
+Then use [Composer](https://getcomposer.org/) to install it.
 
 ```bash
-$ composer require --dev actual/phpunit-merger
+$ composer require --dev actual/phpunit-merger:^3.1
 ```
 
 Composer will add the package as a dev requirement to your composer.json and install the package with its dependencies.
