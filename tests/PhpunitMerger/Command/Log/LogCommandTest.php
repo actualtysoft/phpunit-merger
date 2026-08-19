@@ -34,4 +34,22 @@ class LogCommandTest extends AbstractCommandTestCase
 
         $this->assertFileExists($this->logDirectory . $this->outputFile);
     }
+
+    public function testRunFailsOnMissingDirectory()
+    {
+        $input = new ArgvInput(
+            [
+                'log',
+                $this->logDirectory . 'does-not-exist/',
+                $this->logDirectory . $this->outputFile,
+            ]
+        );
+        $output = $this->getMockBuilder(OutputInterface::class)->getMock();
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('does-not-exist');
+
+        $command = new LogCommand();
+        $command->run($input, $output);
+    }
 }

@@ -132,4 +132,23 @@ class CoverageCommandTest extends AbstractCommandTestCase
         $this->assertFileExists($this->logDirectory . $this->outputFile);
         $this->assertFileExists($this->logDirectory . dirname($this->outputFile) . '/index.html');
     }
+
+    public function testCoverageFailsOnMissingDirectory()
+    {
+        $input = new ArgvInput(
+            [
+                'coverage',
+                $this->logDirectory . 'does-not-exist/',
+                $this->logDirectory . $this->outputFile,
+            ]
+        );
+        $output = $this->getMockBuilder(OutputInterface::class)
+            ->getMock();
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('does-not-exist');
+
+        $command = new CoverageCommand();
+        $command->run($input, $output);
+    }
 }
