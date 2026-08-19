@@ -58,7 +58,7 @@ class CoverageCommand extends Command
     {
         $finder = new Finder();
         $finder->files()
-            ->in(realpath($input->getArgument('directory')));
+            ->in($this->getRealDirectory($input->getArgument('directory')));
 
         $codeCoverage = $this->getCodeCoverage();
 
@@ -80,6 +80,16 @@ class CoverageCommand extends Command
         }
 
         return 0;
+    }
+
+    private function getRealDirectory($directory): string
+    {
+        $realPath = realpath((string)$directory);
+        if ($realPath === false || !is_dir($realPath)) {
+            throw new \RuntimeException('The directory "' . $directory . '" does not exist!');
+        }
+
+        return $realPath;
     }
 
     private function getCodeCoverage()

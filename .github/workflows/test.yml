@@ -35,7 +35,7 @@ jobs:
                     COVERAGE: ${{ matrix.coverage }}
                 run: |
                     echo "version=$(echo $COVERAGE | tr -d -c 0-9)" >> $GITHUB_OUTPUT
-                    echo "major=$(echo $COVERAGE | tr -d -c 0-9 | sed 's/.\{2\}$//')" >> $GITHUB_OUTPUT
+                    echo "major=$(echo $COVERAGE | sed 's/^[~^]//' | cut -d. -f1)" >> $GITHUB_OUTPUT
 
             -   uses: actions/cache/restore@v4
                 id: restore-composer-cache
@@ -84,6 +84,7 @@ jobs:
                 with:
                     name: phpunit-logs-${{ runner.os }}-${{ matrix.php }}-${{ steps.version-cache.outputs.major }}-${{ matrix.coverage }}
                     path: .Log/*
+                    include-hidden-files: true
                     retention-days: 1
 
     merge:
@@ -97,7 +98,7 @@ jobs:
                 os: ${{ fromJson(needs.compute.outputs.os)  }}
                 coverage: ${{ fromJson(needs.compute.outputs.major)  }}
                 php: ${{ fromJson(needs.compute.outputs.php)  }}
-                exclude: ${{ fromJson(needs.compute.outputs.exclude)  }}
+                exclude: ${{ fromJson(needs.compute.outputs.major_exclude)  }}
 
         runs-on: ${{ matrix.os }}
 
@@ -111,6 +112,16 @@ jobs:
                     path: .Log
                     pattern: phpunit-logs-${{ runner.os }}-${{ matrix.php }}-${{ matrix.coverage }}-*
                     merge-multiple: true
+
+            -   name: Verify downloaded artifacts
+                run: |
+                    for directory in .Log/log .Log/coverage; do
+                        if [ -z "$(ls -A "$directory" 2>/dev/null)" ]; then
+                            echo "::error::No PHPUnit artifacts in $directory. Expected artifacts matching 'phpunit-logs-${{ runner.os }}-${{ matrix.php }}-${{ matrix.coverage }}-*' from the build jobs."
+                            exit 1
+                        fi
+                    done
+                    echo "Downloaded $(find .Log/log -type f | wc -l) log file(s) and $(find .Log/coverage -type f | wc -l) coverage file(s)"
 
             -   name: Store Composer cache directory
                 id: composer-cache
@@ -160,4 +171,5 @@ jobs:
                 with:
                     name: phpunit-logs-merged-${{ runner.os }}-${{ matrix.php }}-${{ matrix.coverage }}
                     path: .Log/*
+                    include-hidden-files: true
                     retention-days: 1

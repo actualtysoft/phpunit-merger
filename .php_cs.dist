@@ -1,6 +1,6 @@
 <?php
 $header = <<<'EOF'
-This file is part of the NIMUT testing-framework project.
+This file is part of the actual/phpunit-merger project.
 
 (c) Nicole Cordes <typo3@cordes.co>
 (c) Helmut Hummel <info@helhum.io>

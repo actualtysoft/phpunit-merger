@@ -42,7 +42,7 @@ class LogCommand extends Command
     {
         $finder = new Finder();
         $finder->files()
-            ->in(realpath($input->getArgument('directory')));
+            ->in($this->getRealDirectory($input->getArgument('directory')));
 
         $this->document = new \DOMDocument('1.0', 'UTF-8');
         $this->document->formatOutput = true;
@@ -75,6 +75,16 @@ class LogCommand extends Command
         $this->document->save($input->getArgument('file'));
 
         return 0;
+    }
+
+    private function getRealDirectory($directory): string
+    {
+        $realPath = realpath((string)$directory);
+        if ($realPath === false || !is_dir($realPath)) {
+            throw new \RuntimeException('The directory "' . $directory . '" does not exist!');
+        }
+
+        return $realPath;
     }
 
     private function addTestSuites(\DOMElement $parent, array $testSuites)
